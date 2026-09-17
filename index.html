@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>감자 🥔 - 따뜻한 우리 동네 중고거래</title>
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Supabase JS Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+  <!-- =========================================================
+       [화면 1] 상품 목록 - 헤더 (Header)
+       ========================================================= -->
+  <header>
+    <div class="header-container">
+      <a href="#" class="logo">
+        <span>감자</span> 🥔
+      </a>
+      
+      <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input type="text" id="search-input" placeholder="어떤 중고 상품을 찾고 계신가요?" />
+      </div>
+
+      <div class="header-actions">
+        <button class="btn btn-primary" id="btn-write">
+          <i class="fa-solid fa-pen-to-square"></i> 글쓰기
+        </button>
+        <button class="btn btn-outline" id="btn-login">로그인</button>
+
+        <div class="user-info-group" id="user-info-group" style="display: none;">
+          <span class="user-badge" id="user-nickname"><i class="fa-solid fa-user"></i> 닉네임</span>
+          <button class="btn btn-outline btn-logout" id="btn-logout">로그아웃</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 메인 콘텐츠 영역 -->
+  <main>
+    <!-- 카테고리 필터 버튼 7개 -->
+    <section class="filter-section">
+      <div class="category-list" id="category-list">
+        <button class="category-btn active" data-category="전체">전체</button>
+        <button class="category-btn" data-category="디지털기기">디지털기기</button>
+        <button class="category-btn" data-category="가구/인테리어">가구/인테리어</button>
+        <button class="category-btn" data-category="의류">의류</button>
+        <button class="category-btn" data-category="생활가전">생활가전</button>
+        <button class="category-btn" data-category="도서/티켓">도서/티켓</button>
+        <button class="category-btn" data-category="기타">기타</button>
+      </div>
+    </section>
+
+    <!-- 필터 및 제어 바 (거래 가능만 보기 토글) -->
+    <div class="control-bar">
+      <div class="total-count">
+        전체 상품 <strong id="product-count">0</strong>개
+      </div>
+      
+      <label class="toggle-container" for="toggle-available">
+        <input type="checkbox" id="toggle-available" />
+        <div class="toggle-switch"></div>
+        <span>거래 가능만 보기</span>
+      </label>
+    </div>
+
+    <!-- 상품 카드 그리드 영역 (동적 렌더링) -->
+    <section class="product-grid" id="product-grid">
+      <!-- JavaScript renderProducts()로 카드가 표시됩니다 -->
+    </section>
+  </main>
+
+
+  <!-- =========================================================
+       [화면 2] 상세 팝업 (Detail Modal)
+       ========================================================= -->
+  <div class="modal-overlay" id="detail-modal">
+    <div class="modal-container">
+      <!-- 닫기 버튼 [X] -->
+      <button class="modal-close-btn" id="detail-close-btn" aria-label="닫기">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="detail-scroll">
+        <!-- 위쪽 절반: 대표 이미지 -->
+        <div class="detail-img-wrapper">
+          <img src="" id="detail-img" alt="상품 대표 이미지">
+        </div>
+
+        <!-- 아래쪽 상세 영역 -->
+        <div class="detail-body">
+          <div class="detail-header-row">
+            <span class="badge" id="detail-badge">판매중</span>
+            <span class="card-category" id="detail-category">카테고리</span>
+          </div>
+
+          <h2 class="detail-title" id="detail-title">상품 제목</h2>
+          <p class="detail-meta" id="detail-meta">판매 위치 · 업로드 시간</p>
+          <p class="detail-price" id="detail-price">0원</p>
+          
+          <div class="detail-desc" id="detail-desc">
+            상품 설명 본문...
+          </div>
+
+          <!-- 판매자 정보 -->
+          <div class="seller-card">
+            <img src="" id="seller-avatar" alt="판매자 프로필" class="seller-avatar">
+            <div class="seller-info">
+              <span class="seller-nickname" id="seller-nickname">닉네임</span>
+              <span class="seller-location" id="seller-location">동네</span>
+            </div>
+          </div>
+
+          <!-- 작성자 전용 상태 변경 영역 -->
+          <div class="seller-status-box" id="seller-status-box" style="display: none;">
+            <label for="detail-status-select"><i class="fa-solid fa-rotate"></i> <strong>거래 상태 변경:</strong></label>
+            <select id="detail-status-select" class="form-control status-select-inline">
+              <option value="available">판매중</option>
+              <option value="reserved">예약중</option>
+              <option value="completed">거래 완료</option>
+            </select>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 구매자/타인용 하단 버튼 -->
+      <div class="detail-footer" id="buyer-footer">
+        <button class="btn-like" id="btn-like">
+          <i class="fa-regular fa-heart"></i> 관심 추가
+        </button>
+        <button class="btn-chat" id="btn-chat">
+          <i class="fa-regular fa-comment-dots"></i> 채팅 시작하기
+        </button>
+      </div>
+
+      <!-- 작성자 전용 하단 버튼 -->
+      <div class="detail-footer" id="owner-footer" style="display: none;">
+        <button class="btn btn-outline" id="btn-edit-product" style="flex: 1;">
+          <i class="fa-solid fa-pen"></i> 수정하기
+        </button>
+        <button class="btn btn-danger" id="btn-delete-product" style="flex: 1;">
+          <i class="fa-solid fa-trash"></i> 삭제하기
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- =========================================================
+       [화면 3] 글쓰기 팝업 (Write Modal)
+       ========================================================= -->
+  <div class="modal-overlay" id="write-modal">
+    <div class="modal-container">
+      <button class="modal-close-btn" id="write-close-btn" aria-label="닫기">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="modal-header-title">
+        <i class="fa-solid fa-pen-to-square" style="color: var(--primary-color);"></i>
+        <span>내 물건 팔기</span>
+      </div>
+
+      <div class="write-form-body">
+        <form id="write-form" novalidate>
+          
+          <!-- 1) 상품 이미지 -->
+          <div class="form-group" id="group-image">
+            <label for="write-image">상품 이미지 URL <span class="required">*</span></label>
+            <input type="url" id="write-image" class="form-control" placeholder="이미지 URL을 입력하거나 아래 샘플을 선택하세요" />
+            
+            <div class="sample-images">
+              <span>샘플 선택:</span>
+              <button type="button" class="sample-btn" data-url="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=600&q=80">
+                <img src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=100&q=80" alt="카메라">
+              </button>
+              <button type="button" class="sample-btn" data-url="https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=600&q=80">
+                <img src="https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=100&q=80" alt="헤드폰">
+              </button>
+              <button type="button" class="sample-btn" data-url="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=600&q=80">
+                <img src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=100&q=80" alt="의자">
+              </button>
+            </div>
+
+            <div class="image-preview-box" id="image-preview-box">
+              <span>이미지 URL을 입력하거나 샘플을 선택하세요</span>
+            </div>
+          </div>
+
+          <!-- 2) 상품명 -->
+          <div class="form-group" id="group-title">
+            <label for="write-title">상품명 <span class="required">*</span></label>
+            <input type="text" id="write-title" class="form-control" placeholder="상품 이름을 입력하세요 (예: 아이폰 13 미니)" required />
+            <div class="error-text">상품명을 2자 이상 입력해주세요.</div>
+          </div>
+
+          <!-- 3) 카테고리 -->
+          <div class="form-group" id="group-category">
+            <label for="write-category">카테고리 <span class="required">*</span></label>
+            <select id="write-category" class="form-control" required>
+              <option value="">카테고리를 선택하세요</option>
+              <option value="디지털기기">디지털기기</option>
+              <option value="가구/인테리어">가구/인테리어</option>
+              <option value="의류">의류</option>
+              <option value="생활가전">생활가전</option>
+              <option value="도서/티켓">도서/티켓</option>
+              <option value="기타">기타</option>
+            </select>
+            <div class="error-text">카테고리를 선택해주세요.</div>
+          </div>
+
+          <!-- 4) 가격 -->
+          <div class="form-group" id="group-price">
+            <label for="write-price">가격 (원) <span class="required">*</span></label>
+            <input type="number" id="write-price" class="form-control" placeholder="예: 50000" min="0" required />
+            <div class="error-text">올바른 가격을 입력해주세요.</div>
+          </div>
+
+          <!-- 5) 거래 동네 -->
+          <div class="form-group" id="group-location">
+            <label for="write-location">거래 동네 <span class="required">*</span></label>
+            <input type="text" id="write-location" class="form-control" value="서울시 마포구 연남동" placeholder="예: 서울시 마포구 연남동" required />
+            <div class="error-text">거래 희망 동네를 입력해주세요.</div>
+          </div>
+
+          <!-- 6) 판매 상태 -->
+          <div class="form-group">
+            <label>판매 상태 <span class="required">*</span></label>
+            <div class="radio-group">
+              <input type="radio" id="st-sale" name="write-status" value="available" checked>
+              <label for="st-sale" class="radio-label">판매중</label>
+
+              <input type="radio" id="st-reserved" name="write-status" value="reserved">
+              <label for="st-reserved" class="radio-label">예약중</label>
+
+              <input type="radio" id="st-completed" name="write-status" value="completed">
+              <label for="st-completed" class="radio-label">거래 완료</label>
+            </div>
+          </div>
+
+          <!-- 7) 자세한 설명 -->
+          <div class="form-group" id="group-desc">
+            <label for="write-desc">자세한 설명 <span class="required">*</span></label>
+            <textarea id="write-desc" class="form-control" placeholder="구매 시기, 사용감, 상태 등 구체적인 설명을 작성해주세요." required maxlength="500"></textarea>
+            <div class="error-text">상품 설명을 5자 이상 500자 이하로 작성해주세요.</div>
+          </div>
+
+          <!-- 작성 완료 버튼 -->
+          <div class="write-footer" style="padding: 0; background: none; border: none; margin-top: 20px;">
+            <button type="submit" class="submit-btn" id="write-submit-btn">
+              <i class="fa-solid fa-check"></i> 작성 완료
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- =========================================================
+       [화면 4] 로그인/회원가입 팝업 (Auth Modal)
+       ========================================================= -->
+  <div class="modal-overlay" id="auth-modal">
+    <div class="modal-container auth-modal-container">
+      <button class="modal-close-btn" id="auth-close-btn" aria-label="닫기">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="auth-header">
+        <h2 id="auth-modal-title">로그인</h2>
+        <p id="auth-modal-sub">감자 마켓에 오신 것을 환영합니다 🥔</p>
+      </div>
+
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab-btn active" id="tab-login" data-tab="login">로그인</button>
+        <button type="button" class="auth-tab-btn" id="tab-signup" data-tab="signup">회원가입</button>
+      </div>
+
+      <div class="auth-form-body">
+        <form id="auth-form" novalidate>
+          <div class="form-group" id="group-auth-email">
+            <label for="auth-email">이메일 <span class="required">*</span></label>
+            <input type="email" id="auth-email" class="form-control" placeholder="example@email.com" required />
+            <div class="error-text">유효한 이메일을 입력해 주세요.</div>
+          </div>
+
+          <div class="form-group" id="group-auth-password">
+            <label for="auth-password">비밀번호 <span class="required">*</span></label>
+            <input type="password" id="auth-password" class="form-control" placeholder="비밀번호 (6자 이상)" required />
+            <div class="error-text">비밀번호를 6자 이상 입력해 주세요.</div>
+          </div>
+
+          <div class="form-group" id="group-auth-nickname" style="display: none;">
+            <label for="auth-nickname">닉네임 <span class="required">*</span></label>
+            <input type="text" id="auth-nickname" class="form-control" placeholder="감자 마켓에서 사용할 닉네임" />
+            <div class="error-text">닉네임을 2자 이상 입력해 주세요.</div>
+          </div>
+
+          <div class="auth-error-msg" id="auth-error-msg" style="display: none;"></div>
+
+          <button type="submit" class="submit-btn" id="auth-submit-btn" style="margin-top: 10px;">
+            로그인하기
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- 토스트 알림 -->
+  <div class="toast" id="toast">
+    <i class="fa-solid fa-circle-check" style="color: #4CAF50;"></i>
+    <span id="toast-msg">알림 메시지</span>
+  </div>
+
+  <!-- JavaScript -->
+  <script src="script.js"></script>
+</body>
+</html>

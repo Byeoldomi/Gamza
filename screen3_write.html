@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>감자 마켓 - 내 물건 팔기 (화면 3)</title>
+  <!-- Google Fonts & FontAwesome -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    /* Global Reset & Theme Variables */
+    :root {
+      --bg-color: #FAF7F2;
+      --card-bg: #FFFFFF;
+      --primary: #8C5A3C;
+      --primary-hover: #704428;
+      --primary-light: #F4ECE1;
+      --text-dark: #332B25;
+      --text-muted: #7E7267;
+      --border-color: #E6DCD3;
+      --error-color: #D9534F;
+      --success-color: #4CAF50;
+      --radius: 12px;
+      --shadow: 0 4px 20px rgba(140, 90, 60, 0.08);
+      --transition: all 0.25s ease;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-dark);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header Navigation */
+    header {
+      background-color: var(--card-bg);
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+    }
+
+    .nav-container {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    .logo i {
+      font-size: 1.8rem;
+    }
+
+    .write-trigger-btn {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.65rem 1.3rem;
+      font-size: 0.95rem;
+      font-weight: 500;
+      border-radius: var(--radius);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: var(--transition);
+      box-shadow: 0 2px 8px rgba(140, 90, 60, 0.25);
+    }
+
+    .write-trigger-btn:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    /* Main Container */
+    main {
+      max-width: 1080px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+      flex: 1;
+      width: 100%;
+    }
+
+    .section-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .product-card {
+      background-color: var(--card-bg);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border-color);
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .product-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(140, 90, 60, 0.15);
+    }
+
+    .product-img-wrapper {
+      width: 100%;
+      height: 180px;
+      background-color: #f0ebe4;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .product-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .status-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      padding: 0.25rem 0.6rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border-radius: 6px;
+      color: white;
+    }
+
+    .status-sale { background-color: var(--primary); }
+    .status-reserved { background-color: #E67E22; }
+    .status-completed { background-color: #95A5A6; }
+
+    .product-info {
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      flex: 1;
+    }
+
+    .product-category {
+      font-size: 0.75rem;
+      color: var(--primary);
+      font-weight: 500;
+    }
+
+    .product-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .product-price {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--primary-hover);
+    }
+
+    .product-location {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: auto;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    /* Modal Overlay & Container */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+      padding: 1rem;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-container {
+      background-color: var(--card-bg);
+      width: 100%;
+      max-width: 580px;
+      max-height: 90vh;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      transform: translateY(20px) scale(0.95);
+      transition: all 0.3s ease;
+      overflow: hidden;
+    }
+
+    .modal-overlay.active .modal-container {
+      transform: translateY(0) scale(1);
+    }
+
+    /* Modal Header */
+    .modal-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: var(--card-bg);
+    }
+
+    .modal-header h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .modal-header h2 i {
+      color: var(--primary);
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+
+    .close-btn:hover {
+      background-color: var(--primary-light);
+      color: var(--primary-hover);
+    }
+
+    /* Modal Body / Form */
+    .modal-body {
+      padding: 1.5rem;
+      overflow-y: auto;
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      color: var(--text-dark);
+    }
+
+    .form-label .required {
+      color: var(--error-color);
+      margin-left: 2px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      font-size: 0.95rem;
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius);
+      background-color: #FCFBF9;
+      color: var(--text-dark);
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .form-control:focus {
+      border-color: var(--primary);
+      background-color: #FFFFFF;
+      box-shadow: 0 0 0 3.5px rgba(140, 90, 60, 0.15);
+    }
+
+    textarea.form-control {
+      resize: vertical;
+      min-height: 110px;
+    }
+
+    select.form-control {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%208C5A3C' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      background-size: 1.1em;
+    }
+
+    /* Radio Group Styling */
+    .radio-group {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .radio-label {
+      flex: 1;
+      text-align: center;
+      padding: 0.65rem 0.5rem;
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      background-color: #FCFBF9;
+      transition: var(--transition);
+      user-select: none;
+    }
+
+    .radio-group input[type="radio"] {
+      display: none;
+    }
+
+    .radio-group input[type="radio"]:checked + .radio-label {
+      background-color: var(--primary-light);
+      border-color: var(--primary);
+      color: var(--primary-hover);
+      font-weight: 700;
+    }
+
+    /* Image Input & Sample Selector */
+    .image-preview-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .image-preview-box {
+      width: 100%;
+      height: 140px;
+      border: 2px dashed var(--border-color);
+      border-radius: var(--radius);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      overflow: hidden;
+      background-color: #FCFBF9;
+      position: relative;
+    }
+
+    .image-preview-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .sample-images {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .sample-images span {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .sample-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1.5px solid var(--border-color);
+      cursor: pointer;
+      padding: 0;
+      transition: var(--transition);
+    }
+
+    .sample-btn:hover {
+      border-color: var(--primary);
+      transform: scale(1.05);
+    }
+
+    .sample-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Error Text & Validation */
+    .error-text {
+      color: var(--error-color);
+      font-size: 0.8rem;
+      margin-top: 0.3rem;
+      display: none;
+    }
+
+    .form-group.has-error .form-control {
+      border-color: var(--error-color);
+      background-color: #FFF8F8;
+    }
+
+    .form-group.has-error .error-text {
+      display: block;
+    }
+
+    /* Modal Footer */
+    .modal-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border-color);
+      background-color: #FAF8F5;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .submit-btn {
+      width: 100%;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.85rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 4px 12px rgba(140, 90, 60, 0.2);
+    }
+
+    .submit-btn:hover {
+      background-color: var(--primary-hover);
+      box-shadow: 0 6px 16px rgba(112, 68, 40, 0.3);
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background-color: var(--text-dark);
+      color: white;
+      padding: 0.9rem 1.4rem;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+      z-index: 2000;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast i {
+      color: #2ECC71;
+      font-size: 1.1rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 600px) {
+      .nav-container {
+        padding: 0.8rem 1rem;
+      }
+
+      main {
+        padding: 0 1rem;
+        margin: 1.5rem auto;
+      }
+
+      .modal-container {
+        max-height: 95vh;
+        border-radius: 12px;
+      }
+
+      .modal-header, .modal-body, .modal-footer {
+        padding: 1rem;
+      }
+
+      .product-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 1rem;
+      }
+
+      .product-img-wrapper {
+        height: 130px;
+      }
+
+      .product-info {
+        padding: 0.75rem;
+      }
+
+      .product-title {
+        font-size: 0.95rem;
+      }
+
+      .product-price {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="nav-container">
+      <a href="#" class="logo">
+        <i class="fa-solid fa-potato"></i> 감자 마켓
+      </a>
+      <button class="write-trigger-btn" id="openModalBtn">
+        <i class="fa-solid fa-pen-to-square"></i> 글쓰기
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main>
+    <div class="section-title">
+      <span>최근 등록된 중고물품</span>
+      <small style="font-size: 0.85rem; color: var(--text-muted); font-weight: normal;">우측 상단 '글쓰기' 버튼으로 등록해보세요</small>
+    </div>
+
+    <div class="product-grid" id="productGrid">
+      <!-- 동적으로 상품 카드가 여기에 추가됩니다 -->
+    </div>
+  </main>
+
+  <!-- [화면 3] 글쓰기 팝업 모달 -->
+  <div class="modal-overlay" id="writeModal">
+    <div class="modal-container" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      
+      <!-- 모달 헤더 -->
+      <div class="modal-header">
+        <h2 id="modalTitle">
+          <i class="fa-solid fa-bag-shopping"></i> 내 물건 팔기
+        </h2>
+        <button class="close-btn" id="closeModalBtn" aria-label="닫기">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- 모달 바디 / 입력 폼 -->
+      <div class="modal-body">
+        <form id="productForm" novalidate>
+          
+          <!-- 1) 상품 이미지 -->
+          <div class="form-group" id="group-image">
+            <label class="form-label" for="imageUrl">상품 이미지 URL <span class="required">*</span></label>
+            <div class="image-preview-container">
+              <input type="url" id="imageUrl" class="form-control" placeholder="https://example.com/image.jpg 또는 아래 샘플 선택" required>
+              
+              <div class="image-preview-box" id="imagePreviewBox">
+                <i class="fa-regular fa-image" style="font-size: 2rem; margin-bottom: 0.4rem;"></i>
+                <span>이미지 URL을 입력하거나 샘플을 클릭하세요</span>
+              </div>
+
+              <div class="sample-images">
+                <span>샘플 이미지:</span>
+                <button type="button" class="sample-btn" data-url="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400">
+                  <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100" alt="스마트폰">
+                </button>
+                <button type="button" class="sample-btn" data-url="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400">
+                  <img src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=100" alt="소파">
+                </button>
+                <button type="button" class="sample-btn" data-url="https://images.unsplash.com/photo-1544816155-12df9643f363?w=400">
+                  <img src="https://images.unsplash.com/photo-1544816155-12df9643f363?w=100" alt="책">
+                </button>
+              </div>
+            </div>
+            <div class="error-text">유효한 이미지 URL을 입력해주세요.</div>
+          </div>
+
+          <!-- 2) 상품명 -->
+          <div class="form-group" id="group-title">
+            <label class="form-label" for="title">상품명 <span class="required">*</span></label>
+            <input type="text" id="title" class="form-control" placeholder="상품 제목을 입력하세요 (예: 아이폰 13 미니 급처)" required minlength="2">
+            <div class="error-text">상품명을 2자 이상 입력해주세요.</div>
+          </div>
+
+          <!-- 3) 카테고리 -->
+          <div class="form-group" id="group-category">
+            <label class="form-label" for="category">카테고리 <span class="required">*</span></label>
+            <select id="category" class="form-control" required>
+              <option value="">카테고리를 선택하세요</option>
+              <option value="디지털기기">디지털기기</option>
+              <option value="가구/인테리어">가구/인테리어</option>
+              <option value="의류">의류</option>
+              <option value="생활가전">생활가전</option>
+              <option value="도서/티켓">도서/티켓</option>
+              <option value="기타">기타</option>
+            </select>
+            <div class="error-text">카테고리를 선택해주세요.</div>
+          </div>
+
+          <!-- 4) 가격 -->
+          <div class="form-group" id="group-price">
+            <label class="form-label" for="price">가격 (원) <span class="required">*</span></label>
+            <input type="number" id="price" class="form-control" placeholder="가격을 입력하세요 (예: 50000)" min="0" step="100" required>
+            <div class="error-text">올바른 가격을 입력해주세요 (0원 이상).</div>
+          </div>
+
+          <!-- 6) 거래 동네 -->
+          <div class="form-group" id="group-location">
+            <label class="form-label" for="location">거래 동네 <span class="required">*</span></label>
+            <input type="text" id="location" class="form-control" placeholder="예: 서울시 마포구 연남동" required>
+            <div class="error-text">거래 희망 동네를 입력해주세요.</div>
+          </div>
+
+          <!-- 7) 판매 상태 선택 -->
+          <div class="form-group">
+            <label class="form-label">판매 상태 <span class="required">*</span></label>
+            <div class="radio-group">
+              <input type="radio" id="statusSale" name="status" value="판매중" checked>
+              <label for="statusSale" class="radio-label">판매중</label>
+
+              <input type="radio" id="statusReserved" name="status" value="예약중">
+              <label for="statusReserved" class="radio-label">예약중</label>
+
+              <input type="radio" id="statusCompleted" name="status" value="거래 완료">
+              <label for="statusCompleted" class="radio-label">거래 완료</label>
+            </div>
+          </div>
+
+          <!-- 5) 자세한 설명 -->
+          <div class="form-group" id="group-description">
+            <label class="form-label" for="description">자세한 설명 <span class="required">*</span></label>
+            <textarea id="description" class="form-control" placeholder="구매 시기, 사용감, 하자 여부 등 상품에 대한 상세 정보를 작성해주세요." required minlength="10" maxlength="500"></textarea>
+            <div class="error-text">상품 설명을 10자 이상 500자 이하로 작성해주세요.</div>
+          </div>
+
+          <!-- 맨 아래 [작성 완료] 버튼 -->
+          <div class="modal-footer" style="padding: 0; background: none; border: none; margin-top: 1.5rem;">
+            <button type="submit" class="submit-btn" id="submitBtn">
+              <i class="fa-solid fa-check"></i> 작성 완료
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 토스트 알림 -->
+  <div class="toast" id="toast">
+    <i class="fa-solid fa-circle-check"></i>
+    <span id="toastMsg">새 중고물품이 등록되었습니다!</span>
+  </div>
+
+  <script>
+    /**
+     * 가짜 상품 초기 데이터 목록
+     */
+    let products = [
+      {
+        id: 1,
+        title: "맥북 프로 14인치 M1 Pro 16GB",
+        category: "디지털기기",
+        price: 1450000,
+        location: "서울시 마포구 연남동",
+        status: "판매중",
+        description: "상태 깨끗하고 박스풀입니다. 직거래 선호합니다.",
+        imageUrl: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400",
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: 2,
+        title: "원목 2인용 소파 (쿠션 포함)",
+        category: "가구/인테리어",
+        price: 85000,
+        location: "서울시 마포구 망원동",
+        status: "예약중",
+        description: "이사 관계로 저렴하게 정리합니다.",
+        imageUrl: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400",
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: 3,
+        title: "개발자 필독서 서적 3권 세트",
+        category: "도서/티켓",
+        price: 30000,
+        location: "서울시 서대문구 신촌동",
+        status: "판매중",
+        description: "클린코드, 리팩터링 2판, 토비의 스프링 상태 양호합니다.",
+        imageUrl: "https://images.unsplash.com/photo-1544816155-12df9643f363?w=400",
+        createdAt: new Date().toISOString()
+      }
+    ];
+
+    // DOM 요소를 미리 탐색
+    const modal = document.getElementById('writeModal');
+    const openModalBtn = document.getElementById('openModalBtn');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const productForm = document.getElementById('productForm');
+    const productGrid = document.getElementById('productGrid');
+    const imageUrlInput = document.getElementById('imageUrl');
+    const imagePreviewBox = document.getElementById('imagePreviewBox');
+    const sampleBtns = document.querySelectorAll('.sample-btn');
+    const toast = document.getElementById('toast');
+
+    // 1. 모달 제어 함수 (열기 / 닫기)
+    function openModal() {
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden'; // 배경 스크롤 방지
+    }
+
+    function closeModal() {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+      resetForm();
+    }
+
+    function resetForm() {
+      productForm.reset();
+      // 유효성 검사 클래스 제거
+      document.querySelectorAll('.form-group').forEach(group => {
+        group.classList.remove('has-error');
+      });
+      // 이미지 미리보기 초기화
+      imagePreviewBox.innerHTML = `
+        <i class="fa-regular fa-image" style="font-size: 2rem; margin-bottom: 0.4rem;"></i>
+        <span>이미지 URL을 입력하거나 샘플을 클릭하세요</span>
+      `;
+    }
+
+    // 2. 이미지 미리보기 갱신
+    function updateImagePreview(url) {
+      if (url && url.trim() !== '') {
+        const img = new Image();
+        img.src = url;
+        img.onload = () => {
+          imagePreviewBox.innerHTML = `<img src="${url}" alt="미리보기">`;
+        };
+        img.onerror = () => {
+          imagePreviewBox.innerHTML = `
+            <i class="fa-solid fa-triangle-exclamation" style="font-size: 2rem; color: var(--error-color); margin-bottom: 0.4rem;"></i>
+            <span style="color: var(--error-color);">이미지를 불러올 수 없습니다.</span>
+          `;
+        };
+      } else {
+        imagePreviewBox.innerHTML = `
+          <i class="fa-regular fa-image" style="font-size: 2rem; margin-bottom: 0.4rem;"></i>
+          <span>이미지 URL을 입력하거나 샘플을 클릭하세요</span>
+        `;
+      }
+    }
+
+    // 3. 토스트 메세지 노출
+    function showToast(message) {
+      document.getElementById('toastMsg').textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    // 4. 상품 리스트 UI 렌더링 함수
+    function renderProductList() {
+      productGrid.innerHTML = '';
+
+      products.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+
+        // 상태값 별 뱃지 클래스
+        let statusClass = 'status-sale';
+        if (item.status === '예약중') statusClass = 'status-reserved';
+        if (item.status === '거래 완료') statusClass = 'status-completed';
+
+        // 가격 세자리 콤마 포맷팅
+        const formattedPrice = Number(item.price).toLocaleString('ko-KR');
+
+        card.innerHTML = `
+          <div class="product-img-wrapper">
+            <span class="status-badge ${statusClass}">${item.status}</span>
+            <img src="${item.imageUrl}" alt="${item.title}" class="product-img" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
+          </div>
+          <div class="product-info">
+            <span class="product-category">${item.category}</span>
+            <h3 class="product-title" title="${item.title}">${item.title}</h3>
+            <div class="product-price">${formattedPrice} 원</div>
+            <div class="product-location">
+              <i class="fa-solid fa-location-dot"></i> ${item.location}
+            </div>
+          </div>
+        `;
+        productGrid.appendChild(card);
+      });
+    }
+
+    // 5. 폼 유효성 검사 (Validation)
+    function validateForm() {
+      let isValid = true;
+
+      // 1) 이미지 URL
+      const imgVal = imageUrlInput.value.trim();
+      const imgGroup = document.getElementById('group-image');
+      if (!imgVal) {
+        imgGroup.classList.add('has-error');
+        isValid = false;
+      } else {
+        imgGroup.classList.remove('has-error');
+      }
+
+      // 2) 상품명
+      const titleInput = document.getElementById('title');
+      const titleGroup = document.getElementById('group-title');
+      if (!titleInput.value.trim() || titleInput.value.trim().length < 2) {
+        titleGroup.classList.add('has-error');
+        isValid = false;
+      } else {
+        titleGroup.classList.remove('has-error');
+      }
+
+      // 3) 카테고리
+      const categorySelect = document.getElementById('category');
+      const categoryGroup = document.getElementById('group-category');
+      if (!categorySelect.value) {
+        categoryGroup.classList.add('has-error');
+        isValid = false;
+      } else {
+        categoryGroup.classList.remove('has-error');
+      }
+
+      // 4) 가격
+      const priceInput = document.getElementById('price');
+      const priceGroup = document.getElementById('group-price');
+      if (!priceInput.value || Number(priceInput.value) < 0) {
+        priceGroup.classList.add('has-error');
+        isValid = false;
+      } else {
+        priceGroup.classList.remove('has-error');
+      }
+
+      // 6) 거래 동네
+      const locationInput = document.getElementById('location');
+      const locationGroup = document.getElementById('group-location');
+      if (!locationInput.value.trim()) {
+        locationGroup.classList.add('has-error');
+        isValid = false;
+      } else {
+        locationGroup.classList.remove('has-error');
+      }
+
+      // 5) 설명
+      const descInput = document.getElementById('description');
+      const descGroup = document.getElementById('group-description');
+      if (!descInput.value.trim() || descInput.value.trim().length < 10 || descInput.value.trim().length > 500) {
+        descGroup.classList.add('has-error');
+        isValid = false;
+      } else {
+        descGroup.classList.remove('has-error');
+      }
+
+      return isValid;
+    }
+
+    // 6. 이벤트 리스너 등록
+    openModalBtn.addEventListener('click', openModal);
+    closeModalBtn.addEventListener('click', closeModal);
+
+    // 모달 바깥 영역 클릭 시 닫기
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    // ESC 키 입력 시 모달 닫기
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('active')) {
+        closeModal();
+      }
+    });
+
+    // 이미지 URL 입력 시 미리보기 업데이트
+    imageUrlInput.addEventListener('input', (e) => {
+      updateImagePreview(e.target.value);
+    });
+
+    // 샘플 이미지 클릭 시 URL 입력란에 반영
+    sampleBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const sampleUrl = btn.dataset.url;
+        imageUrlInput.value = sampleUrl;
+        updateImagePreview(sampleUrl);
+        document.getElementById('group-image').classList.remove('has-error');
+      });
+    });
+
+    // 7. 폼 제출 (Form Submit) 이벤트 핸들러
+    productForm.addEventListener('submit', function(e) {
+      e.preventDefault(); // 기본 폼 제출 방지
+
+      // 폼 유효성 검사
+      if (!validateForm()) {
+        return;
+      }
+
+      // 폼 데이터 수집
+      const selectedStatus = document.querySelector('input[name="status"]:checked').value;
+
+      const newProduct = {
+        id: Date.now(), // 고유 ID
+        title: document.getElementById('title').value.trim(),
+        category: document.getElementById('category').value,
+        price: Number(document.getElementById('price').value),
+        location: document.getElementById('location').value.trim(),
+        status: selectedStatus,
+        description: document.getElementById('description').value.trim(),
+        imageUrl: imageUrlInput.value.trim(),
+        createdAt: new Date().toISOString()
+      };
+
+      // 요구사항: 기존 가짜 상품 리스트 맨 앞에 등록(추가)
+      products.unshift(newProduct);
+
+      // UI 리스트 다시 렌더링
+      renderProductList();
+
+      // 모달 닫기 및 초기화
+      closeModal();
+
+      // 성공 안내 알림
+      showToast('새로운 중고물품이 성공적으로 등록되었습니다!');
+    });
+
+    // 초기 화면 렌더링 실행
+    renderProductList();
+  </script>
+</body>
+</html>
